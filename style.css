@@ -95,6 +95,84 @@ body {
   border-radius: 8px;
 }
 
+/* JavaScript로 생성되는 날짜 칸과 오늘 날짜를 보여주는 영역 */
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 92px;
+  padding: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.calendar-day.empty {
+  background: #f1f5f9;
+  border-style: dashed;
+  cursor: default;
+}
+
+.calendar-day.today {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.calendar-day.selected {
+  border-color: #0f172a;
+  box-shadow: inset 0 0 0 2px #0f172a;
+}
+
+.day-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.calendar-day.today .day-number {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.dot-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot.assignment {
+  background: #2563eb;
+}
+
+.dot.exam {
+  background: #dc2626;
+}
+
+.dot.presentation {
+  background: #7c3aed;
+}
+
+.dot.meeting {
+  background: #f97316;
+}
+
+.dot.personal {
+  background: #16a34a;
+}
+
 /* 오른쪽의 일정 추가와 설정 메뉴를 담는 패널 영역 */
 .side-panel {
   display: flex;
@@ -113,6 +191,164 @@ body {
 .panel-section h2 {
   margin: 0;
   font-size: 20px;
+}
+
+/* 새 일정을 입력하는 폼을 정리하는 영역 */
+.schedule-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.schedule-form label {
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.schedule-form input,
+.schedule-form select,
+.schedule-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #1f2937;
+  font: inherit;
+}
+
+.schedule-form textarea {
+  resize: vertical;
+}
+
+.add-schedule-button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.add-schedule-button:hover {
+  background: #1d4ed8;
+}
+
+.cancel-edit-button {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel-edit-button:hover {
+  background: #f1f5f9;
+}
+
+.selected-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.schedule-card {
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.schedule-card h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.schedule-card p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.schedule-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.schedule-action-button {
+  flex: 1;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.schedule-action-button.edit {
+  background: #475569;
+}
+
+.schedule-action-button.edit:hover {
+  background: #334155;
+}
+
+.schedule-action-button.delete {
+  background: #dc2626;
+}
+
+.schedule-action-button.delete:hover {
+  background: #b91c1c;
+}
+
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.category-badge.assignment {
+  background: #2563eb;
+}
+
+.category-badge.exam {
+  background: #dc2626;
+}
+
+.category-badge.presentation {
+  background: #7c3aed;
+}
+
+.category-badge.meeting {
+  background: #f97316;
+}
+
+.category-badge.personal {
+  background: #16a34a;
+}
+
+.empty-message {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
 }
 
 /* 좁은 화면에서 달력과 패널을 세로로 쌓는 반응형 영역 */
@@ -134,5 +370,9 @@ body {
   .calendar-grid {
     grid-auto-rows: minmax(72px, auto);
     min-height: 480px;
+  }
+
+  .calendar-day {
+    min-height: 72px;
   }
 }
