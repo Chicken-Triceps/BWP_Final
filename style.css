@@ -1,0 +1,138 @@
+/* 전체 페이지의 기본 배경과 글꼴을 설정하는 영역 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #eef2f7;
+  color: #1f2937;
+  font-family: Arial, "Noto Sans KR", sans-serif;
+}
+
+/* 앱 제목을 담는 상단 헤더 영역 */
+.app-header {
+  padding: 28px 40px;
+  background: #ffffff;
+  border-bottom: 1px solid #dce3ec;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+/* 달력 카드와 오른쪽 패널을 배치하는 메인 레이아웃 영역 */
+.app-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  width: min(1180px, calc(100% - 40px));
+  margin: 32px auto;
+}
+
+/* 월 이동 버튼과 날짜 칸을 포함하는 달력 카드 영역 */
+.calendar-card {
+  padding: 24px;
+  background: #ffffff;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.calendar-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.month-button {
+  min-width: 72px;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.month-button:hover {
+  background: #e8eef6;
+}
+
+/* 달력 위쪽에 요일 이름을 보여주는 영역 */
+.weekday-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.weekday-row span {
+  padding: 10px 0;
+}
+
+/* JavaScript로 날짜 칸이 들어갈 빈 달력 그리드 영역 */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: minmax(92px, auto);
+  gap: 8px;
+  min-height: 592px;
+  border-radius: 8px;
+}
+
+/* 오른쪽의 일정 추가와 설정 메뉴를 담는 패널 영역 */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel-section {
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+}
+
+.panel-section h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+/* 좁은 화면에서 달력과 패널을 세로로 쌓는 반응형 영역 */
+@media (max-width: 820px) {
+  .app-header {
+    padding: 22px 20px;
+  }
+
+  .app-layout {
+    grid-template-columns: 1fr;
+    width: min(100% - 24px, 680px);
+    margin: 20px auto;
+  }
+
+  .calendar-card {
+    padding: 18px;
+  }
+
+  .calendar-grid {
+    grid-auto-rows: minmax(72px, auto);
+    min-height: 480px;
+  }
+}
