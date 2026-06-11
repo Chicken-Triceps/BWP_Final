@@ -27,19 +27,272 @@ body {
 /* 달력 카드와 오른쪽 패널을 배치하는 메인 레이아웃 영역 */
 .app-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: minmax(300px, 0.8fr) minmax(680px, 1.7fr) minmax(300px, 0.8fr);
   gap: 24px;
-  width: min(1180px, calc(100% - 40px));
+  align-items: start;
+  width: min(1680px, calc(100% - 40px));
   margin: 32px auto;
 }
 
+.subject-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
 /* 월 이동 버튼과 날짜 칸을 포함하는 달력 카드 영역 */
-.calendar-card {
+.calendar-card,
+.subject-timetable-card {
+  position: relative;
   padding: 24px;
   background: #ffffff;
   border: 1px solid #dce3ec;
   border-radius: 8px;
   box-shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+}
+
+.subject-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.subject-panel-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.term-label {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.subject-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-tool-button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.icon-tool-button.primary {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.term-settings-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) 96px;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.term-settings-panel[hidden] {
+  display: none;
+}
+
+.term-settings-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.term-settings-panel select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f2937;
+  font: inherit;
+}
+
+.save-term-button {
+  height: 38px;
+  width: 100%;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.timetable {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+  overflow-x: auto;
+}
+
+.timetable-title {
+  padding: 10px 12px;
+  border-bottom: 1px solid #cbd5e1;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.timetable-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px repeat(6, minmax(48px, 1fr));
+  grid-template-rows: 28px repeat(26, 20px);
+  min-width: 0;
+}
+
+.timetable-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #d1d5db;
+  border-bottom: 1px solid #d1d5db;
+  color: #475569;
+  font-size: 11px;
+}
+
+.timetable-cell.header {
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 700;
+}
+
+.timetable-cell.time {
+  align-items: flex-start;
+  padding-top: 4px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 700;
+}
+
+.subject-block {
+  position: relative;
+  z-index: 1;
+  margin: 2px;
+  padding: 6px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+}
+
+.subject-block small {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.subject-form-panel {
+  margin-top: 16px;
+  padding: 18px;
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.subject-form-panel.edit-floating {
+  position: absolute;
+  z-index: 10;
+  width: min(360px, calc(100% - 32px));
+  margin-top: 0;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18);
+}
+
+.subject-hover-card,
+.subject-action-popover {
+  position: absolute;
+  z-index: 20;
+  width: 220px;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+}
+
+.subject-hover-card {
+  pointer-events: none;
+}
+
+.subject-hover-card[hidden],
+.subject-action-popover[hidden],
+.subject-form-panel[hidden] {
+  display: none;
+}
+
+.subject-hover-card h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.subject-hover-card p {
+  margin: 4px 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.subject-action-popover {
+  display: flex;
+  gap: 8px;
+  width: 160px;
+}
+
+.subject-form-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.subject-form-panel-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.icon-close-button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .calendar-header {
@@ -89,9 +342,9 @@ body {
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-auto-rows: minmax(92px, auto);
+  grid-auto-rows: minmax(104px, auto);
   gap: 8px;
-  min-height: 592px;
+  min-height: 680px;
   border-radius: 8px;
 }
 
@@ -100,7 +353,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 92px;
+  min-height: 104px;
   padding: 10px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -153,26 +406,6 @@ body {
   border-radius: 50%;
 }
 
-.dot.assignment {
-  background: #2563eb;
-}
-
-.dot.exam {
-  background: #dc2626;
-}
-
-.dot.presentation {
-  background: #7c3aed;
-}
-
-.dot.meeting {
-  background: #f97316;
-}
-
-.dot.personal {
-  background: #16a34a;
-}
-
 /* 오른쪽의 일정 추가와 설정 메뉴를 담는 패널 영역 */
 .side-panel {
   display: flex;
@@ -194,14 +427,19 @@ body {
 }
 
 /* 새 일정을 입력하는 폼을 정리하는 영역 */
-.schedule-form {
+.schedule-form,
+.category-form,
+.subject-form {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 18px;
 }
 
-.schedule-form label {
+.schedule-form label,
+.category-form label,
+.subject-form label,
+.form-label {
   color: #475569;
   font-size: 13px;
   font-weight: 700;
@@ -209,7 +447,10 @@ body {
 
 .schedule-form input,
 .schedule-form select,
-.schedule-form textarea {
+.schedule-form textarea,
+.category-form input,
+.subject-form input,
+.subject-form select {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #cbd5e1;
@@ -221,6 +462,59 @@ body {
 
 .schedule-form textarea {
   resize: vertical;
+}
+
+.category-form input[type="color"] {
+  height: 42px;
+  padding: 4px;
+}
+
+.class-time-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.class-time-row {
+  display: grid;
+  grid-template-columns: auto 24px minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.class-time-row span {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.class-time-row input[type="checkbox"] {
+  width: auto;
+  padding: 0;
+  cursor: pointer;
+}
+
+.class-time-row input[type="time"] {
+  min-width: 0;
+  padding: 7px 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1f2937;
+  font: inherit;
+  font-size: 12px;
+  direction: ltr;
+  text-align: center;
+}
+
+.class-time-row input[type="time"]:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
 }
 
 .add-schedule-button {
@@ -240,6 +534,56 @@ body {
   background: #1d4ed8;
 }
 
+.save-category-button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.save-category-button:hover {
+  background: #1d4ed8;
+}
+
+.save-subject-button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.save-subject-button:hover {
+  background: #1d4ed8;
+}
+
+.subject-delete-button {
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.subject-delete-button:hover {
+  background: #b91c1c;
+}
+
 .cancel-edit-button {
   width: 100%;
   padding: 10px 14px;
@@ -256,33 +600,94 @@ body {
   background: #f1f5f9;
 }
 
-.selected-schedule-list {
+.selected-schedule-list,
+.category-list,
+.subject-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-top: 18px;
 }
 
-.schedule-card {
+.category-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.category-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.category-swatch {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.category-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.small-action-button {
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 7px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.small-action-button.edit {
+  background: #475569;
+}
+
+.small-action-button.delete {
+  background: #dc2626;
+}
+
+.schedule-card,
+.subject-card {
   padding: 12px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
 }
 
-.schedule-card h3 {
+.schedule-card h3,
+.subject-card h3 {
   margin: 0 0 8px;
   font-size: 15px;
 }
 
-.schedule-card p {
+.schedule-card p,
+.subject-card p {
   margin: 6px 0 0;
   color: #64748b;
   font-size: 13px;
   line-height: 1.5;
 }
 
-.schedule-actions {
+.subject-time-list {
+  white-space: pre-line;
+}
+
+.schedule-actions,
+.subject-actions {
   display: flex;
   gap: 8px;
   margin-top: 12px;
@@ -323,26 +728,6 @@ body {
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;
-}
-
-.category-badge.assignment {
-  background: #2563eb;
-}
-
-.category-badge.exam {
-  background: #dc2626;
-}
-
-.category-badge.presentation {
-  background: #7c3aed;
-}
-
-.category-badge.meeting {
-  background: #f97316;
-}
-
-.category-badge.personal {
-  background: #16a34a;
 }
 
 .empty-message {

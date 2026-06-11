@@ -14,6 +14,121 @@
 
   <!-- 달력과 설정 패널을 나란히 배치하는 주요 영역 -->
   <main class="app-layout">
+    <div class="subject-column">
+      <section class="subject-timetable-card" id="subjectPanel">
+        <div class="subject-panel-header">
+          <div>
+            <h2>과목 시간표</h2>
+            <p class="term-label" id="termLabel">1학년 1학기</p>
+          </div>
+          <div class="subject-header-actions">
+            <button type="button" class="icon-tool-button" id="openTermSettingsBtn" aria-label="학년 학기 수정">⚙</button>
+            <button type="button" class="icon-tool-button primary" id="openSubjectFormBtn" aria-label="과목 추가">+</button>
+          </div>
+        </div>
+
+        <div class="term-settings-panel" id="termSettingsPanel" hidden>
+          <label for="gradeSelect">
+            학년
+            <select id="gradeSelect">
+              <option value="1">1학년</option>
+              <option value="2">2학년</option>
+              <option value="3">3학년</option>
+              <option value="4">4학년</option>
+              <option value="5">5학년</option>
+              <option value="6">6학년</option>
+            </select>
+          </label>
+
+          <label for="termSelect">
+            학기
+            <select id="termSelect">
+              <option value="1">1학기</option>
+              <option value="2">2학기</option>
+              <option value="summer">하계 계절학기</option>
+              <option value="winter">동계 계절학기</option>
+            </select>
+          </label>
+
+          <button type="button" class="save-term-button" id="saveTermSettingsBtn">이동</button>
+        </div>
+
+        <div class="timetable" aria-label="과목별 시간표">
+          <div class="timetable-title">시간표</div>
+          <div class="timetable-grid" id="timetableGrid"></div>
+        </div>
+
+        <div class="subject-hover-card" id="subjectHoverCard" hidden></div>
+
+        <div class="subject-action-popover" id="subjectActionPopover" hidden>
+          <button type="button" class="schedule-action-button edit" id="popoverEditSubjectBtn">수정</button>
+          <button type="button" class="schedule-action-button delete" id="popoverDeleteSubjectBtn">삭제</button>
+        </div>
+
+        <div class="subject-form-panel" id="subjectFormPanel" hidden>
+          <div class="subject-form-panel-header">
+            <h3 id="subjectFormTitle">과목 추가</h3>
+            <button type="button" class="icon-close-button" id="closeSubjectFormBtn" aria-label="과목 입력 닫기">×</button>
+          </div>
+
+          <div class="subject-form">
+            <label for="subjectName">과목명</label>
+            <input type="text" id="subjectName" placeholder="예: 기초웹프로그래밍">
+
+            <label for="professorName">교수명</label>
+            <input type="text" id="professorName" placeholder="예: 김교수">
+
+            <label for="classroom">강의실</label>
+            <input type="text" id="classroom" placeholder="예: S5510">
+
+            <span class="form-label">수업 시간</span>
+            <div class="class-time-list" aria-label="과목 요일 및 시간 선택">
+              <div class="class-time-row">
+                <input type="checkbox" name="subjectDays" value="월">
+                <span>월</span>
+                <input type="time" class="subject-day-start" data-day="월" step="300" lang="en-GB" aria-label="월요일 시작 시간">
+                <input type="time" class="subject-day-end" data-day="월" step="300" lang="en-GB" aria-label="월요일 종료 시간">
+              </div>
+              <div class="class-time-row">
+                <input type="checkbox" name="subjectDays" value="화">
+                <span>화</span>
+                <input type="time" class="subject-day-start" data-day="화" step="300" lang="en-GB" aria-label="화요일 시작 시간">
+                <input type="time" class="subject-day-end" data-day="화" step="300" lang="en-GB" aria-label="화요일 종료 시간">
+              </div>
+              <div class="class-time-row">
+                <input type="checkbox" name="subjectDays" value="수">
+                <span>수</span>
+                <input type="time" class="subject-day-start" data-day="수" step="300" lang="en-GB" aria-label="수요일 시작 시간">
+                <input type="time" class="subject-day-end" data-day="수" step="300" lang="en-GB" aria-label="수요일 종료 시간">
+              </div>
+              <div class="class-time-row">
+                <input type="checkbox" name="subjectDays" value="목">
+                <span>목</span>
+                <input type="time" class="subject-day-start" data-day="목" step="300" lang="en-GB" aria-label="목요일 시작 시간">
+                <input type="time" class="subject-day-end" data-day="목" step="300" lang="en-GB" aria-label="목요일 종료 시간">
+              </div>
+              <div class="class-time-row">
+                <input type="checkbox" name="subjectDays" value="금">
+                <span>금</span>
+                <input type="time" class="subject-day-start" data-day="금" step="300" lang="en-GB" aria-label="금요일 시작 시간">
+                <input type="time" class="subject-day-end" data-day="금" step="300" lang="en-GB" aria-label="금요일 종료 시간">
+              </div>
+              <div class="class-time-row">
+                <input type="checkbox" name="subjectDays" value="토">
+                <span>토</span>
+                <input type="time" class="subject-day-start" data-day="토" step="300" lang="en-GB" aria-label="토요일 시작 시간">
+                <input type="time" class="subject-day-end" data-day="토" step="300" lang="en-GB" aria-label="토요일 종료 시간">
+              </div>
+            </div>
+
+            <button type="button" class="save-subject-button" id="saveSubjectBtn">과목 추가</button>
+            <button type="button" class="subject-delete-button" id="deleteSubjectBtn" hidden>과목 삭제</button>
+            <button type="button" class="cancel-edit-button" id="cancelSubjectEditBtn" hidden>수정 취소</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <!-- 과제와 시험 일정을 확인할 달력 영역 -->
     <section class="calendar-card" aria-labelledby="currentMonth">
       <div class="calendar-header">
@@ -43,19 +158,13 @@
         <!-- 새 일정을 입력하는 폼 영역 -->
         <div class="schedule-form">
           <label for="scheduleTitle">일정 제목</label>
-          <input type="text" id="scheduleTitle" placeholder="예: 자료구조 과제">
+          <input type="text" id="scheduleTitle" placeholder="예: 기초웹 과제">
 
           <label for="scheduleDate">일정 날짜</label>
           <input type="date" id="scheduleDate">
 
           <label for="scheduleCategory">카테고리</label>
-          <select id="scheduleCategory">
-            <option value="과제">🔵 과제</option>
-            <option value="시험">🔴 시험</option>
-            <option value="발표">🟣 발표</option>
-            <option value="회의">🟠 회의</option>
-            <option value="개인">🟢 개인</option>
-          </select>
+          <select id="scheduleCategory"></select>
 
           <label for="scheduleMemo">설명</label>
           <textarea id="scheduleMemo" rows="4" placeholder="일정 설명을 입력하세요."></textarea>
@@ -72,13 +181,23 @@
         </div>
       </section>
 
-      <section class="panel-section" id="semesterPanel">
-        <h2>학기 설정</h2>
+      <section class="panel-section" id="categoryPanel">
+        <h2>카테고리 관리</h2>
+
+        <div class="category-form">
+          <label for="categoryName">카테고리 이름</label>
+          <input type="text" id="categoryName" placeholder="예: 동아리">
+
+          <label for="categoryColor">색상</label>
+          <input type="color" id="categoryColor" value="#64748b">
+
+          <button type="button" class="save-category-button" id="saveCategoryBtn">카테고리 저장</button>
+          <button type="button" class="cancel-edit-button" id="cancelCategoryEditBtn" hidden>수정 취소</button>
+        </div>
+
+        <div class="category-list" id="categoryList"></div>
       </section>
 
-      <section class="panel-section" id="subjectPanel">
-        <h2>과목 관리</h2>
-      </section>
     </aside>
   </main>
 
