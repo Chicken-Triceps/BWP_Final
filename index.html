@@ -9,7 +9,11 @@
 <body>
   <!-- 앱의 제목을 보여주는 상단 영역 -->
   <header class="app-header">
-    <h1>Mini UNV</h1>
+    <img class="app-logo" src="images/logo.png" alt="Mini UNV">
+    <div class="student-info">
+      <span>60201673 박건우</span>
+      <span>기초웹프로그래밍 기말과제</span>
+    </div>
   </header>
 
   <!-- 달력과 설정 패널을 나란히 배치하는 주요 영역 -->
@@ -48,6 +52,16 @@
               <option value="summer">하계 계절학기</option>
               <option value="winter">동계 계절학기</option>
             </select>
+          </label>
+
+          <label for="termStartDate">
+            시작일
+            <input type="date" id="termStartDate">
+          </label>
+
+          <label for="termEndDate">
+            종료일
+            <input type="date" id="termEndDate">
           </label>
 
           <button type="button" class="save-term-button" id="saveTermSettingsBtn">이동</button>
@@ -133,7 +147,16 @@
     <section class="calendar-card" aria-labelledby="currentMonth">
       <div class="calendar-header">
         <button type="button" class="month-button" id="prevMonth" aria-label="이전 달">이전</button>
-        <h2 id="currentMonth">현재 월</h2>
+        <div class="calendar-center">
+          <h2 id="currentMonth">현재 월</h2>
+          <div class="category-filter-panel" aria-label="카테고리별 보기">
+            <div class="category-filter-actions">
+              <button type="button" id="selectAllCategoriesBtn">모두 선택</button>
+              <button type="button" id="clearAllCategoriesBtn">모두 해제</button>
+            </div>
+            <div class="category-filter-list" id="categoryFilterList"></div>
+          </div>
+        </div>
         <button type="button" class="month-button" id="nextMonth" aria-label="다음 달">다음</button>
       </div>
 
@@ -163,6 +186,22 @@
           <label for="scheduleDate">일정 날짜</label>
           <input type="date" id="scheduleDate">
 
+          <button type="button" class="time-setting-button" id="toggleScheduleTimeBtn" aria-expanded="false">시간 설정</button>
+
+          <div class="schedule-time-panel" id="scheduleTimePanel" hidden>
+            <label for="scheduleStartDate">시작일</label>
+            <input type="date" id="scheduleStartDate">
+
+            <label for="scheduleStartTime">시작시각</label>
+            <input type="time" id="scheduleStartTime" step="300" lang="en-GB">
+
+            <label for="scheduleEndDate">종료일</label>
+            <input type="date" id="scheduleEndDate">
+
+            <label for="scheduleEndTime">종료시각</label>
+            <input type="time" id="scheduleEndTime" step="300" lang="en-GB">
+          </div>
+
           <label for="scheduleCategory">카테고리</label>
           <select id="scheduleCategory"></select>
 
@@ -182,20 +221,25 @@
       </section>
 
       <section class="panel-section" id="categoryPanel">
-        <h2>카테고리 관리</h2>
-
-        <div class="category-form">
-          <label for="categoryName">카테고리 이름</label>
-          <input type="text" id="categoryName" placeholder="예: 동아리">
-
-          <label for="categoryColor">색상</label>
-          <input type="color" id="categoryColor" value="#64748b">
-
-          <button type="button" class="save-category-button" id="saveCategoryBtn">카테고리 저장</button>
-          <button type="button" class="cancel-edit-button" id="cancelCategoryEditBtn" hidden>수정 취소</button>
+        <div class="panel-title-row">
+          <h2>카테고리 관리</h2>
+          <button type="button" class="panel-toggle-button" id="toggleCategoryPanelBtn" aria-expanded="false">펼치기</button>
         </div>
 
-        <div class="category-list" id="categoryList"></div>
+        <div id="categoryPanelBody" hidden>
+          <div class="category-form">
+            <label for="categoryName">카테고리 이름</label>
+            <input type="text" id="categoryName" placeholder="예: 동아리">
+
+            <label for="categoryColor">색상</label>
+            <input type="color" id="categoryColor" value="#64748b">
+
+            <button type="button" class="save-category-button" id="saveCategoryBtn">카테고리 저장</button>
+            <button type="button" class="cancel-edit-button" id="cancelCategoryEditBtn" hidden>수정 취소</button>
+          </div>
+
+          <div class="category-list" id="categoryList"></div>
+        </div>
       </section>
 
     </aside>

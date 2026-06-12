@@ -5,21 +5,34 @@ const prevMonthButton = document.getElementById("prevMonth");
 const nextMonthButton = document.getElementById("nextMonth");
 const scheduleTitle = document.getElementById("scheduleTitle");
 const scheduleDate = document.getElementById("scheduleDate");
+const toggleScheduleTimeBtn = document.getElementById("toggleScheduleTimeBtn");
+const scheduleTimePanel = document.getElementById("scheduleTimePanel");
+const scheduleStartDate = document.getElementById("scheduleStartDate");
+const scheduleStartTime = document.getElementById("scheduleStartTime");
+const scheduleEndDate = document.getElementById("scheduleEndDate");
+const scheduleEndTime = document.getElementById("scheduleEndTime");
 const scheduleCategory = document.getElementById("scheduleCategory");
 const scheduleMemo = document.getElementById("scheduleMemo");
 const addScheduleBtn = document.getElementById("addScheduleBtn");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
 const selectedScheduleList = document.getElementById("selectedScheduleList");
+const categoryFilterList = document.getElementById("categoryFilterList");
+const selectAllCategoriesBtn = document.getElementById("selectAllCategoriesBtn");
+const clearAllCategoriesBtn = document.getElementById("clearAllCategoriesBtn");
 const categoryName = document.getElementById("categoryName");
 const categoryColor = document.getElementById("categoryColor");
 const saveCategoryBtn = document.getElementById("saveCategoryBtn");
 const cancelCategoryEditBtn = document.getElementById("cancelCategoryEditBtn");
+const toggleCategoryPanelBtn = document.getElementById("toggleCategoryPanelBtn");
+const categoryPanelBody = document.getElementById("categoryPanelBody");
 const categoryList = document.getElementById("categoryList");
 const termLabel = document.getElementById("termLabel");
 const openTermSettingsBtn = document.getElementById("openTermSettingsBtn");
 const termSettingsPanel = document.getElementById("termSettingsPanel");
 const gradeSelect = document.getElementById("gradeSelect");
 const termSelect = document.getElementById("termSelect");
+const termStartDate = document.getElementById("termStartDate");
+const termEndDate = document.getElementById("termEndDate");
 const saveTermSettingsBtn = document.getElementById("saveTermSettingsBtn");
 const subjectName = document.getElementById("subjectName");
 const professorName = document.getElementById("professorName");
@@ -59,9 +72,12 @@ let activeSubjectAnchor = null;
 let schedules = [];
 let subjects = [];
 let categories = [];
+let selectedCategoryIds = [];
 let termSettings = {
   grade: "1",
-  term: "1"
+  term: "1",
+  startDate: "",
+  endDate: ""
 };
 
 function saveSchedules() {
@@ -86,12 +102,36 @@ function loadSchedules() {
 
 function getDefaultCategories() {
   return [
-    { id: "assignment", name: "과제", color: "#2563eb" },
-    { id: "exam", name: "시험", color: "#dc2626" },
-    { id: "presentation", name: "발표", color: "#7c3aed" },
-    { id: "meeting", name: "회의", color: "#f97316" },
-    { id: "personal", name: "개인", color: "#16a34a" }
+    { id: "assignment", name: "과제", color: "#2563eb", protected: true },
+    { id: "exam", name: "시험", color: "#dc2626", protected: true },
+    { id: "presentation", name: "발표", color: "#7c3aed", protected: true },
+    { id: "meeting", name: "회의", color: "#f97316", protected: true },
+    { id: "personal", name: "개인", color: "#16a34a", protected: true },
+    { id: "class", name: "수업", color: "#0f766e", protected: true }
   ];
+}
+
+function normalizeCategories(categoryList) {
+  const defaultCategories = getDefaultCategories();
+  const normalizedCategories = Array.isArray(categoryList) ? categoryList.slice() : [];
+
+  defaultCategories.forEach(function (defaultCategory) {
+    const savedCategory = normalizedCategories.find(function (category) {
+      return category.id === defaultCategory.id || category.name === defaultCategory.name;
+    });
+
+    if (savedCategory) {
+      savedCategory.id = defaultCategory.id;
+      savedCategory.name = defaultCategory.name;
+      savedCategory.protected = true;
+      savedCategory.color = savedCategory.color || defaultCategory.color;
+      return;
+    }
+
+    normalizedCategories.push(defaultCategory);
+  });
+
+  return normalizedCategories;
 }
 
 function saveCategories() {
@@ -102,20 +142,33 @@ function loadCategories() {
   const savedCategories = localStorage.getItem(CATEGORY_STORAGE_KEY);
 
   if (!savedCategories) {
-    categories = getDefaultCategories();
+    categories = normalizeCategories([]);
     saveCategories();
     return;
   }
 
   try {
     const parsedCategories = JSON.parse(savedCategories);
-    categories = Array.isArray(parsedCategories) && parsedCategories.length > 0
+    categories = normalizeCategories(
+      Array.isArray(parsedCategories) && parsedCategories.length > 0
       ? parsedCategories
-      : getDefaultCategories();
+      : []
+    );
+    saveCategories();
   } catch (error) {
-    categories = getDefaultCategories();
+    categories = normalizeCategories([]);
     console.error("저장된 카테고리를 불러올 수 없습니다.", error);
   }
+}
+
+function selectEveryCategory() {
+  selectedCategoryIds = categories.map(function (category) {
+    return category.id;
+  });
+}
+
+function isCategorySelected(categoryId) {
+  return selectedCategoryIds.includes(categoryId);
 }
 
 function getCategoryInfo(categoryValue) {
@@ -146,10 +199,63 @@ function renderCategoryOptions(selectedValue) {
 
 function resetCategoryForm() {
   categoryName.value = "";
+  categoryName.readOnly = false;
   categoryColor.value = "#64748b";
   editingCategoryId = null;
   saveCategoryBtn.textContent = "카테고리 저장";
   cancelCategoryEditBtn.hidden = true;
+}
+
+function renderCategoryFilters() {
+  categoryFilterList.innerHTML = "";
+
+  categories.forEach(function (category) {
+    const label = document.createElement("label");
+    label.classList.add("category-filter-item");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = category.id;
+    checkbox.checked = isCategorySelected(category.id);
+    checkbox.addEventListener("change", function () {
+      if (checkbox.checked) {
+        selectedCategoryIds.push(category.id);
+      } else {
+        selectedCategoryIds = selectedCategoryIds.filter(function (selectedId) {
+          return selectedId !== category.id;
+        });
+      }
+
+      renderCalendar();
+      renderSelectedDateSchedules();
+    });
+
+    const swatch = document.createElement("span");
+    swatch.classList.add("category-filter-swatch");
+    swatch.style.backgroundColor = category.color;
+
+    const name = document.createElement("span");
+    name.textContent = category.name;
+
+    label.appendChild(checkbox);
+    label.appendChild(swatch);
+    label.appendChild(name);
+    categoryFilterList.appendChild(label);
+  });
+}
+
+function selectAllCategories() {
+  selectEveryCategory();
+  renderCategoryFilters();
+  renderCalendar();
+  renderSelectedDateSchedules();
+}
+
+function clearAllCategories() {
+  selectedCategoryIds = [];
+  renderCategoryFilters();
+  renderCalendar();
+  renderSelectedDateSchedules();
 }
 
 function saveTermSettings() {
@@ -170,16 +276,22 @@ function loadTermSettings() {
     if (parsedSettings && parsedSettings.grade && parsedSettings.term) {
       termSettings = {
         grade: parsedSettings.grade,
-        term: parsedSettings.term
+        term: parsedSettings.term,
+        startDate: parsedSettings.startDate || "",
+        endDate: parsedSettings.endDate || ""
       };
 
       gradeSelect.value = termSettings.grade;
       termSelect.value = termSettings.term;
+      termStartDate.value = termSettings.startDate;
+      termEndDate.value = termSettings.endDate;
     }
   } catch (error) {
     termSettings = {
       grade: "1",
-      term: "1"
+      term: "1",
+      startDate: "",
+      endDate: ""
     };
     console.error("저장된 학년 학기 설정을 불러올 수 없습니다.", error);
   }
@@ -259,10 +371,11 @@ function loadSubjects() {
 
 function resetScheduleForm() {
   scheduleTitle.value = "";
-  scheduleDate.value = "";
+  editingScheduleId = null;
+  syncScheduleDateDefault();
+  hideScheduleTimePanel();
   scheduleCategory.value = categories[0] ? categories[0].id : "";
   scheduleMemo.value = "";
-  editingScheduleId = null;
   addScheduleBtn.textContent = "일정 추가";
   cancelEditBtn.hidden = true;
 }
@@ -521,6 +634,96 @@ function makeDateString(year, month, date) {
   return `${year}-${monthText}-${dateText}`;
 }
 
+function getDefaultScheduleDate() {
+  return selectedDate || makeDateString(today.getFullYear(), today.getMonth(), today.getDate());
+}
+
+function syncScheduleDateDefault() {
+  if (editingScheduleId !== null) {
+    return;
+  }
+
+  scheduleDate.value = getDefaultScheduleDate();
+}
+
+function showScheduleTimePanel() {
+  const baseDate = scheduleDate.value || getDefaultScheduleDate();
+
+  scheduleTimePanel.hidden = false;
+  toggleScheduleTimeBtn.textContent = "시간 설정 닫기";
+  toggleScheduleTimeBtn.setAttribute("aria-expanded", "true");
+
+  scheduleStartDate.value = baseDate;
+  scheduleEndDate.value = baseDate;
+  scheduleStartTime.value = "09:00";
+  scheduleEndTime.value = "10:00";
+}
+
+function hideScheduleTimePanel() {
+  scheduleTimePanel.hidden = true;
+  toggleScheduleTimeBtn.textContent = "시간 설정";
+  toggleScheduleTimeBtn.setAttribute("aria-expanded", "false");
+  scheduleStartDate.value = "";
+  scheduleStartTime.value = "";
+  scheduleEndDate.value = "";
+  scheduleEndTime.value = "";
+}
+
+function toggleScheduleTimePanel() {
+  if (scheduleTimePanel.hidden) {
+    showScheduleTimePanel();
+    return;
+  }
+
+  hideScheduleTimePanel();
+}
+
+function handleScheduleDateChange() {
+  if (!isScheduleTimeEnabled() || editingScheduleId !== null) {
+    return;
+  }
+
+  scheduleStartDate.value = scheduleDate.value;
+  scheduleEndDate.value = scheduleDate.value;
+}
+
+function isScheduleTimeEnabled() {
+  return !scheduleTimePanel.hidden;
+}
+
+function getScheduleStartDate(schedule) {
+  return schedule.startDate || schedule.date;
+}
+
+function getScheduleEndDate(schedule) {
+  return schedule.endDate || schedule.date;
+}
+
+function isScheduleOnDate(schedule, dateString) {
+  const startDate = getScheduleStartDate(schedule);
+  const endDate = getScheduleEndDate(schedule);
+
+  return startDate <= dateString && dateString <= endDate;
+}
+
+function getScheduleDateText(schedule) {
+  if (schedule.startDate && schedule.endDate && schedule.startTime && schedule.endTime) {
+    return `${schedule.startDate} ${schedule.startTime} ~ ${schedule.endDate} ${schedule.endTime}`;
+  }
+
+  return schedule.date;
+}
+
+function getScheduleDotTitle(schedule) {
+  const dateText = getScheduleDateText(schedule);
+
+  return dateText ? `${schedule.title} / ${dateText}` : schedule.title;
+}
+
+function isScheduleTimeRangeValid(startDate, startTime, endDate, endTime) {
+  return `${startDate}T${startTime}` < `${endDate}T${endTime}`;
+}
+
 function renderTermLabel() {
   const termTextMap = {
     "1": "1학기",
@@ -538,17 +741,75 @@ function toggleTermSettingsPanel(event) {
 }
 
 function saveTerm() {
+  const startDate = termStartDate.value;
+  const endDate = termEndDate.value;
+
+  if (startDate !== "" && endDate !== "" && startDate > endDate) {
+    alert("학기 시작일은 종료일보다 늦을 수 없습니다.");
+    return;
+  }
+
   termSettings = {
     grade: gradeSelect.value,
-    term: termSelect.value
+    term: termSelect.value,
+    startDate: startDate,
+    endDate: endDate
   };
 
   saveTermSettings();
   renderTermLabel();
   loadSubjects();
   renderSubjects();
+  renderCalendar();
+  renderSelectedDateSchedules();
   resetSubjectForm();
   termSettingsPanel.hidden = true;
+}
+
+function getDayNameFromDateString(dateString) {
+  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+  const date = new Date(`${dateString}T00:00:00`);
+
+  return dayNames[date.getDay()];
+}
+
+function getSubjectClassColor(subject) {
+  return getCategoryInfo("class").color || "#0f766e";
+}
+
+function getClassTitle(subject, classTime) {
+  return `${subject.name} / ${subject.room || "-"} / ${subject.professor || "-"} / ${classTime.startTime}~${classTime.endTime}`;
+}
+
+function getClassesForDate(dateString) {
+  if (!termSettings.startDate || !termSettings.endDate) {
+    return [];
+  }
+
+  if (dateString < termSettings.startDate || dateString > termSettings.endDate) {
+    return [];
+  }
+
+  const dayName = getDayNameFromDateString(dateString);
+  const classesForDate = [];
+
+  subjects.forEach(function (subject) {
+    const classTimes = getRenderableClassTimes(subject);
+
+    classTimes.forEach(function (classTime) {
+      if (classTime.day !== dayName) {
+        return;
+      }
+
+      classesForDate.push({
+        subject: subject,
+        classTime: classTime,
+        color: getSubjectClassColor(subject)
+      });
+    });
+  });
+
+  return classesForDate;
 }
 
 // 현재 보고 있는 연도와 월에 맞춰 달력을 화면에 그리는 함수
@@ -600,7 +861,7 @@ function renderCalendar() {
     }
 
     const schedulesForDate = schedules.filter(function (schedule) {
-      return schedule.date === dateString;
+      return isScheduleOnDate(schedule, dateString) && isCategorySelected(getCategoryInfo(schedule.category).id);
     });
 
     schedulesForDate.forEach(function (schedule) {
@@ -609,12 +870,30 @@ function renderCalendar() {
 
       dot.classList.add("dot");
       dot.style.backgroundColor = categoryInfo.color;
-      dot.title = schedule.title;
+      dot.title = getScheduleDotTitle(schedule);
       dotContainer.appendChild(dot);
     });
 
+    if (isCategorySelected("class")) {
+      getClassesForDate(dateString).forEach(function (classSchedule) {
+      const dot = document.createElement("span");
+
+      dot.classList.add("dot", "class-dot");
+      dot.style.backgroundColor = classSchedule.color;
+      dot.title = getClassTitle(classSchedule.subject, classSchedule.classTime);
+      dotContainer.appendChild(dot);
+      });
+    }
+
     dayCell.addEventListener("click", function () {
       selectedDate = dateString;
+      syncScheduleDateDefault();
+
+      if (isScheduleTimeEnabled() && editingScheduleId === null) {
+        scheduleStartDate.value = dateString;
+        scheduleEndDate.value = dateString;
+      }
+
       renderCalendar();
       renderSelectedDateSchedules();
     });
@@ -661,10 +940,11 @@ function renderSelectedDateSchedules() {
   }
 
   const schedulesForDate = schedules.filter(function (schedule) {
-    return schedule.date === selectedDate;
+    return isScheduleOnDate(schedule, selectedDate) && isCategorySelected(getCategoryInfo(schedule.category).id);
   });
+  const classesForDate = isCategorySelected("class") ? getClassesForDate(selectedDate) : [];
 
-  if (schedulesForDate.length === 0) {
+  if (schedulesForDate.length === 0 && classesForDate.length === 0) {
     const message = document.createElement("p");
     message.classList.add("empty-message");
     message.textContent = "등록된 일정이 없습니다.";
@@ -686,7 +966,7 @@ function renderSelectedDateSchedules() {
     categoryBadge.textContent = categoryInfo.name;
 
     const dateText = document.createElement("p");
-    dateText.textContent = schedule.date;
+    dateText.textContent = getScheduleDateText(schedule);
 
     const memoText = document.createElement("p");
     memoText.textContent = schedule.memo === "" ? "메모 없음" : schedule.memo;
@@ -719,6 +999,31 @@ function renderSelectedDateSchedules() {
     scheduleCard.appendChild(memoText);
     scheduleCard.appendChild(actions);
     selectedScheduleList.appendChild(scheduleCard);
+  });
+
+  classesForDate.forEach(function (classSchedule) {
+    const subject = classSchedule.subject;
+    const classTime = classSchedule.classTime;
+    const classCard = document.createElement("article");
+    classCard.classList.add("schedule-card", "class-schedule-card");
+
+    const title = document.createElement("h3");
+    title.textContent = `[수업] ${subject.name}`;
+
+    const roomText = document.createElement("p");
+    roomText.textContent = `강의실: ${subject.room || "-"}`;
+
+    const professorText = document.createElement("p");
+    professorText.textContent = `교수: ${subject.professor || "-"}`;
+
+    const timeText = document.createElement("p");
+    timeText.textContent = `시간: ${classTime.startTime}~${classTime.endTime}`;
+
+    classCard.appendChild(title);
+    classCard.appendChild(roomText);
+    classCard.appendChild(professorText);
+    classCard.appendChild(timeText);
+    selectedScheduleList.appendChild(classCard);
   });
 }
 
@@ -753,7 +1058,7 @@ function renderCategories() {
     const editButton = document.createElement("button");
     editButton.type = "button";
     editButton.classList.add("small-action-button", "edit");
-    editButton.textContent = "수정";
+    editButton.textContent = category.protected ? "색상" : "수정";
     editButton.addEventListener("click", function () {
       startEditCategory(category.id);
     });
@@ -762,6 +1067,7 @@ function renderCategories() {
     deleteButton.type = "button";
     deleteButton.classList.add("small-action-button", "delete");
     deleteButton.textContent = "삭제";
+    deleteButton.disabled = Boolean(category.protected);
     deleteButton.addEventListener("click", function () {
       deleteCategory(category.id);
     });
@@ -778,8 +1084,19 @@ function renderCategories() {
 
 function refreshCategoryView(selectedValue) {
   saveCategories();
+  selectedCategoryIds = selectedCategoryIds.filter(function (categoryId) {
+    return categories.some(function (category) {
+      return category.id === categoryId;
+    });
+  });
+
+  if (selectedValue && !selectedCategoryIds.includes(selectedValue)) {
+    selectedCategoryIds.push(selectedValue);
+  }
+
   renderCategoryOptions(selectedValue);
   renderCategories();
+  renderCategoryFilters();
   renderCalendar();
   renderSelectedDateSchedules();
 }
@@ -787,14 +1104,18 @@ function refreshCategoryView(selectedValue) {
 function saveCategory() {
   const name = categoryName.value.trim();
   const color = categoryColor.value;
+  const categoryToUpdate = categories.find(function (category) {
+    return category.id === editingCategoryId;
+  });
+  const nextName = categoryToUpdate && categoryToUpdate.protected ? categoryToUpdate.name : name;
 
-  if (name === "") {
+  if (nextName === "") {
     alert("카테고리 이름을 입력하세요.");
     return;
   }
 
   const duplicatedCategory = categories.find(function (category) {
-    return category.name === name && category.id !== editingCategoryId;
+    return category.name === nextName && category.id !== editingCategoryId;
   });
 
   if (duplicatedCategory) {
@@ -803,16 +1124,12 @@ function saveCategory() {
   }
 
   if (editingCategoryId !== null) {
-    const categoryToUpdate = categories.find(function (category) {
-      return category.id === editingCategoryId;
-    });
-
     if (!categoryToUpdate) {
       resetCategoryForm();
       return;
     }
 
-    categoryToUpdate.name = name;
+    categoryToUpdate.name = nextName;
     categoryToUpdate.color = color;
     refreshCategoryView(categoryToUpdate.id);
     resetCategoryForm();
@@ -841,8 +1158,9 @@ function startEditCategory(categoryId) {
 
   editingCategoryId = categoryId;
   categoryName.value = categoryToEdit.name;
+  categoryName.readOnly = Boolean(categoryToEdit.protected);
   categoryColor.value = categoryToEdit.color;
-  saveCategoryBtn.textContent = "카테고리 수정";
+  saveCategoryBtn.textContent = categoryToEdit.protected ? "색상 수정" : "카테고리 수정";
   cancelCategoryEditBtn.hidden = false;
 }
 
@@ -850,6 +1168,12 @@ function deleteCategory(categoryId) {
   const categoryToDelete = categories.find(function (category) {
     return category.id === categoryId;
   });
+
+  if (categoryToDelete && categoryToDelete.protected) {
+    alert("기본 카테고리는 삭제할 수 없습니다.");
+    return;
+  }
+
   const shouldDelete = confirm("이 카테고리를 삭제하시겠습니까?");
 
   if (!shouldDelete) {
@@ -881,6 +1205,14 @@ function deleteCategory(categoryId) {
 
 function cancelCategoryEdit() {
   resetCategoryForm();
+}
+
+function toggleCategoryPanel() {
+  const isHidden = categoryPanelBody.hidden;
+
+  categoryPanelBody.hidden = !isHidden;
+  toggleCategoryPanelBtn.textContent = isHidden ? "접기" : "펼치기";
+  toggleCategoryPanelBtn.setAttribute("aria-expanded", String(isHidden));
 }
 
 function refreshScheduleView() {
@@ -921,11 +1253,24 @@ function startEditSchedule(scheduleId) {
   scheduleDate.value = scheduleToEdit.date;
   scheduleCategory.value = getCategoryInfo(scheduleToEdit.category).id;
   scheduleMemo.value = scheduleToEdit.memo;
+
+  if (scheduleToEdit.startDate && scheduleToEdit.endDate && scheduleToEdit.startTime && scheduleToEdit.endTime) {
+    scheduleTimePanel.hidden = false;
+    toggleScheduleTimeBtn.textContent = "시간 설정 닫기";
+    toggleScheduleTimeBtn.setAttribute("aria-expanded", "true");
+    scheduleStartDate.value = scheduleToEdit.startDate;
+    scheduleStartTime.value = scheduleToEdit.startTime;
+    scheduleEndDate.value = scheduleToEdit.endDate;
+    scheduleEndTime.value = scheduleToEdit.endTime;
+  } else {
+    hideScheduleTimePanel();
+  }
+
   addScheduleBtn.textContent = "일정 수정";
   cancelEditBtn.hidden = false;
 }
 
-function updateSchedule(title, date, category, memo) {
+function updateSchedule(title, date, category, memo, timeData) {
   const scheduleToUpdate = schedules.find(function (schedule) {
     return schedule.id === editingScheduleId;
   });
@@ -940,6 +1285,19 @@ function updateSchedule(title, date, category, memo) {
   scheduleToUpdate.category = category;
   scheduleToUpdate.memo = memo;
 
+  delete scheduleToUpdate.startDate;
+  delete scheduleToUpdate.startTime;
+  delete scheduleToUpdate.endDate;
+  delete scheduleToUpdate.endTime;
+
+  if (timeData) {
+    scheduleToUpdate.date = timeData.startDate;
+    scheduleToUpdate.startDate = timeData.startDate;
+    scheduleToUpdate.startTime = timeData.startTime;
+    scheduleToUpdate.endDate = timeData.endDate;
+    scheduleToUpdate.endTime = timeData.endTime;
+  }
+
   console.log(schedules);
   refreshScheduleView();
   resetScheduleForm();
@@ -951,9 +1309,10 @@ function addSchedule() {
   const date = scheduleDate.value;
   const category = scheduleCategory.value;
   const memo = scheduleMemo.value.trim();
+  let timeData = null;
 
   // 제목과 날짜는 일정을 구분하는 데 꼭 필요하므로 비어 있으면 알려준다.
-  if (title === "" || date === "") {
+  if (title === "" || (!isScheduleTimeEnabled() && date === "")) {
     alert("일정 제목과 날짜를 입력하세요.");
     return;
   }
@@ -963,18 +1322,49 @@ function addSchedule() {
     return;
   }
 
+  if (isScheduleTimeEnabled()) {
+    const startDate = scheduleStartDate.value;
+    const startTime = scheduleStartTime.value;
+    const endDate = scheduleEndDate.value;
+    const endTime = scheduleEndTime.value;
+
+    if (startDate === "" || startTime === "" || endDate === "" || endTime === "") {
+      alert("시작일, 시작시각, 종료일, 종료시각을 입력하세요.");
+      return;
+    }
+
+    if (!isScheduleTimeRangeValid(startDate, startTime, endDate, endTime)) {
+      alert("일정 시작 일시는 종료 일시보다 빨라야 합니다.");
+      return;
+    }
+
+    timeData = {
+      startDate: startDate,
+      startTime: startTime,
+      endDate: endDate,
+      endTime: endTime
+    };
+  }
+
   if (editingScheduleId !== null) {
-    updateSchedule(title, date, category, memo);
+    updateSchedule(title, date, category, memo, timeData);
     return;
   }
 
   const newSchedule = {
     id: Date.now(),
     title: title,
-    date: date,
+    date: timeData ? timeData.startDate : date,
     category: category,
     memo: memo
   };
+
+  if (timeData) {
+    newSchedule.startDate = timeData.startDate;
+    newSchedule.startTime = timeData.startTime;
+    newSchedule.endDate = timeData.endDate;
+    newSchedule.endTime = timeData.endTime;
+  }
 
   schedules.push(newSchedule);
   console.log(schedules);
@@ -1123,6 +1513,8 @@ function refreshSubjectView() {
   hideSubjectHoverCard();
   hideSubjectActionPopover();
   renderSubjects();
+  renderCalendar();
+  renderSelectedDateSchedules();
 }
 
 function saveSubject() {
@@ -1269,8 +1661,13 @@ prevMonthButton.addEventListener("click", goPrevMonth);
 nextMonthButton.addEventListener("click", goNextMonth);
 addScheduleBtn.addEventListener("click", addSchedule);
 cancelEditBtn.addEventListener("click", cancelEditSchedule);
+toggleScheduleTimeBtn.addEventListener("click", toggleScheduleTimePanel);
+scheduleDate.addEventListener("change", handleScheduleDateChange);
+selectAllCategoriesBtn.addEventListener("click", selectAllCategories);
+clearAllCategoriesBtn.addEventListener("click", clearAllCategories);
 saveCategoryBtn.addEventListener("click", saveCategory);
 cancelCategoryEditBtn.addEventListener("click", cancelCategoryEdit);
+toggleCategoryPanelBtn.addEventListener("click", toggleCategoryPanel);
 openTermSettingsBtn.addEventListener("click", toggleTermSettingsPanel);
 termSettingsPanel.addEventListener("click", function (event) {
   event.stopPropagation();
@@ -1303,11 +1700,15 @@ document.addEventListener("click", function () {
 // 페이지가 처음 열릴 때 현재 달력을 한 번 출력한다.
 loadSchedules();
 loadCategories();
+selectEveryCategory();
 renderCategoryOptions();
 renderCategories();
+renderCategoryFilters();
 loadTermSettings();
 loadSubjects();
 syncClassTimeInputState();
+selectedDate = getDefaultScheduleDate();
+syncScheduleDateDefault();
 renderCalendar();
 renderSelectedDateSchedules();
 renderSubjects();
